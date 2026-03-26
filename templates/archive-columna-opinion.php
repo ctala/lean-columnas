@@ -23,6 +23,18 @@ get_header();
 
 <div class="lc-archive">
 
+    <nav class="lc-breadcrumb" aria-label="<?php esc_attr_e('Breadcrumb', 'lean-columnas'); ?>">
+        <a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Inicio', 'lean-columnas'); ?></a>
+        <span class="lc-breadcrumb-sep" aria-hidden="true">/</span>
+        <?php if (is_tax('columna-categoria')) : ?>
+            <a href="<?php echo esc_url(get_post_type_archive_link('columna-opinion')); ?>"><?php esc_html_e('Columnas', 'lean-columnas'); ?></a>
+            <span class="lc-breadcrumb-sep" aria-hidden="true">/</span>
+            <span class="lc-breadcrumb-current" aria-current="page"><?php single_term_title(); ?></span>
+        <?php else : ?>
+            <span class="lc-breadcrumb-current" aria-current="page"><?php esc_html_e('Columnas de Opinion', 'lean-columnas'); ?></span>
+        <?php endif; ?>
+    </nav>
+
     <header class="lc-archive-header">
         <?php if (is_tax('columna-categoria')) : ?>
             <h1 class="entry-title">

@@ -33,6 +33,18 @@ while (have_posts()) :
 
 <article id="post-<?php the_ID(); ?>" <?php post_class('lc-single-column'); ?>>
 
+    <nav class="lc-breadcrumb" aria-label="<?php esc_attr_e('Breadcrumb', 'lean-columnas'); ?>">
+        <a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Inicio', 'lean-columnas'); ?></a>
+        <span class="lc-breadcrumb-sep" aria-hidden="true">/</span>
+        <a href="<?php echo esc_url(get_post_type_archive_link('columna-opinion')); ?>"><?php esc_html_e('Columnas', 'lean-columnas'); ?></a>
+        <?php if (is_array($categories) && !empty($categories)) : ?>
+            <span class="lc-breadcrumb-sep" aria-hidden="true">/</span>
+            <a href="<?php echo esc_url(get_term_link($categories[0])); ?>"><?php echo esc_html($categories[0]->name); ?></a>
+        <?php endif; ?>
+        <span class="lc-breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="lc-breadcrumb-current" aria-current="page"><?php the_title(); ?></span>
+    </nav>
+
     <header class="lc-column-header">
         <?php if (is_array($categories) && !empty($categories)) : ?>
             <div class="lc-column-categories">

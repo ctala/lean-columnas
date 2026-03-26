@@ -142,7 +142,12 @@ class Plugin
      */
     public function enqueueFrontendAssets(): void
     {
-        if (!is_singular('columna-opinion') && !is_post_type_archive('columna-opinion')) {
+        $is_column_page = is_singular('columna-opinion')
+            || is_post_type_archive('columna-opinion')
+            || is_tax('columna-categoria')
+            || is_author();
+
+        if (!$is_column_page) {
             return;
         }
 
