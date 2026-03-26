@@ -20,12 +20,6 @@ if (!defined('ABSPATH')) {
 $card_categories = get_the_terms(get_the_ID(), 'columna-categoria');
 ?>
 <article class="lc-card">
-    <?php if (has_post_thumbnail()) : ?>
-        <a href="<?php the_permalink(); ?>" class="lc-card-image-link">
-            <?php the_post_thumbnail('medium_large', ['class' => 'lc-card-image']); ?>
-        </a>
-    <?php endif; ?>
-
     <div class="lc-card-body">
         <?php if (is_array($card_categories) && !empty($card_categories)) : ?>
             <div class="lc-card-categories">

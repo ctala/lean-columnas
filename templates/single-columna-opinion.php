@@ -129,13 +129,15 @@ while (have_posts()) :
     </article>
 
     <?php
-    // Sidebar: author's columns first, fill with latest if not enough.
-    $sidebar_count = 4;
+    // Sidebar: author's columns (if any) + always latest columns.
+    $author_max = 3;
+    $latest_max = 5;
     $exclude_ids = [$post_id];
 
+    // 1. Author's other columns.
     $author_columns = new WP_Query([
         'post_type'      => 'columna-opinion',
-        'posts_per_page' => $sidebar_count,
+        'posts_per_page' => $author_max,
         'post_status'    => 'publish',
         'post__not_in'   => $exclude_ids,
         'author'         => $author_id,
@@ -143,28 +145,26 @@ while (have_posts()) :
         'order'          => 'DESC',
     ]);
 
-    $need_more = $sidebar_count - $author_columns->post_count;
-    $latest_columns = null;
-
-    if ($need_more > 0) {
-        if ($author_columns->have_posts()) {
-            while ($author_columns->have_posts()) {
-                $author_columns->the_post();
-                $exclude_ids[] = get_the_ID();
-            }
-            $author_columns->rewind_posts();
+    // Collect shown IDs to exclude from latest.
+    if ($author_columns->have_posts()) {
+        while ($author_columns->have_posts()) {
+            $author_columns->the_post();
+            $exclude_ids[] = get_the_ID();
         }
-        $latest_columns = new WP_Query([
-            'post_type'      => 'columna-opinion',
-            'posts_per_page' => $need_more,
-            'post_status'    => 'publish',
-            'post__not_in'   => $exclude_ids,
-            'orderby'        => 'date',
-            'order'          => 'DESC',
-        ]);
+        $author_columns->rewind_posts();
     }
 
-    $has_sidebar = $author_columns->have_posts() || ($latest_columns !== null && $latest_columns->have_posts());
+    // 2. Latest columns (always shown, excluding current + author's shown above).
+    $latest_columns = new WP_Query([
+        'post_type'      => 'columna-opinion',
+        'posts_per_page' => $latest_max,
+        'post_status'    => 'publish',
+        'post__not_in'   => $exclude_ids,
+        'orderby'        => 'date',
+        'order'          => 'DESC',
+    ]);
+
+    $has_sidebar = $author_columns->have_posts() || $latest_columns->have_posts();
 
     if ($has_sidebar) :
     ?>
@@ -185,7 +185,7 @@ while (have_posts()) :
             </div>
         <?php endif; ?>
 
-        <?php if ($latest_columns !== null && $latest_columns->have_posts()) : ?>
+        <?php if ($latest_columns->have_posts()) : ?>
             <div class="lc-sidebar-section">
                 <h2 class="lc-sidebar-title">
                     <?php esc_html_e('Ultimas columnas', 'lean-columnas'); ?>
