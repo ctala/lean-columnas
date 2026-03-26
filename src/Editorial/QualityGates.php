@@ -58,7 +58,7 @@ class QualityGates
     /**
      * Gates that generate warnings but don't block submission.
      */
-    private const WARNING_GATES = ['excerpt', 'featured_image', 'subheadings'];
+    private const WARNING_GATES = ['excerpt', 'subheadings'];
 
     /**
      * Validate a column against all quality gates.
@@ -73,7 +73,6 @@ class QualityGates
             'word_count'     => $this->checkWordCount($post),
             'title'          => $this->checkTitle($post),
             'excerpt'        => $this->checkExcerpt($post),
-            'featured_image' => $this->checkFeaturedImage($post),
             'subheadings'    => $this->checkSubheadings($post),
             'sanitization'   => $this->checkSanitization($post),
         ];
@@ -235,7 +234,7 @@ class QualityGates
         if (!has_post_thumbnail($post->ID)) {
             return [
                 'passed'  => false,
-                'message' => __('Featured image is required.', 'lean-columnas'),
+                'message' => __('Se recomienda agregar una imagen destacada que ilustre el tema de la columna (no tu foto de perfil, esa ya aparece automaticamente).', 'lean-columnas'),
             ];
         }
 

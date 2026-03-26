@@ -48,13 +48,22 @@ class PostType
      *
      * Hooked to `init`.
      */
+    /**
+     * Whether the taxonomy UI is enabled.
+     *
+     * Categories are registered but hidden from the UI until there's
+     * enough content (~30+ columns) to justify categorization.
+     * Set to true when ready to enable categories.
+     */
+    public const TAXONOMY_ENABLED = false;
+
     public function register(): void
     {
         if (!post_type_exists(self::SLUG)) {
             $this->registerPostType();
         }
 
-        if (!taxonomy_exists(self::TAXONOMY)) {
+        if (self::TAXONOMY_ENABLED && !taxonomy_exists(self::TAXONOMY)) {
             $this->registerTaxonomy();
         }
 
@@ -101,8 +110,8 @@ class PostType
             'menu_icon'          => 'dashicons-welcome-widgets-menus',
             'show_in_rest'       => true,
             'rest_base'          => 'columnas-opinion',
-            'supports'           => ['title', 'editor', 'author', 'thumbnail', 'excerpt'],
-            'taxonomies'         => [self::TAXONOMY],
+            'supports'           => ['title', 'editor', 'author', 'excerpt'],
+            'taxonomies'         => self::TAXONOMY_ENABLED ? [self::TAXONOMY] : [],
         ];
 
         register_post_type(self::SLUG, $args);
