@@ -1,0 +1,58 @@
+/**
+ * Lean Columnas - Admin Styles
+ *
+ * Styles for the editorial queue and management pages in wp-admin.
+ *
+ * @package LeanColumnas
+ * @version 0.1.0
+ */
+
+/* Status badges */
+.lc-status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 3px;
+    line-height: 1.5;
+}
+
+.lc-status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.lc-status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.lc-status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Action buttons spacing */
+.wp-list-table td .button {
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+/* Queue page tab counts */
+.subsubsub .count {
+    font-weight: 400;
+    color: #646970;
+}
+
+.subsubsub a.current .count {
+    color: inherit;
+}
+
+/* Responsive tweaks for the queue table */
+@media screen and (max-width: 782px) {
+    .wp-list-table td .button {
+        display: block;
+        margin-bottom: 6px;
+        text-align: center;
+    }
+}
