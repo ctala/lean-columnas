@@ -3,7 +3,7 @@
  * Plugin Name: Lean Columnas
  * Plugin URI: https://github.com/ctala/lean-columnas
  * Description: Opinion columns management with Columnist and Agency roles, editorial workflow, and quality gates.
- * Version: 0.2.4
+ * Version: 0.2.5
  * Author: Cristian Tala
  * Author URI: https://github.com/ctala
  * License: GPL-2.0-or-later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('LEAN_COLUMNAS_VERSION', '0.2.4');
+define('LEAN_COLUMNAS_VERSION', '0.2.5');
 define('LEAN_COLUMNAS_PATH', plugin_dir_path(__FILE__));
 define('LEAN_COLUMNAS_URL', plugin_dir_url(__FILE__));
 define('LEAN_COLUMNAS_BASENAME', plugin_basename(__FILE__));
@@ -67,6 +67,9 @@ function lean_columnas_activate(): void
     $roles = new \LeanColumnas\Roles();
     $roles->register();
 
+    // Restore users who were demoted during a previous deactivation.
+    lean_columnas_restore_users();
+
     flush_rewrite_rules();
 }
 register_activation_hook(__FILE__, 'lean_columnas_activate');
@@ -74,14 +77,48 @@ register_activation_hook(__FILE__, 'lean_columnas_activate');
 /**
  * Plugin deactivation hook.
  *
- * Cleans up scheduled tasks and flushes rewrite rules.
- * Does NOT remove tables or roles (that happens on uninstall).
+ * Demotes columnists and agencies to subscriber and stores their
+ * original role in user_meta so it can be restored on reactivation.
+ * Does NOT delete users or remove their content.
  */
 function lean_columnas_deactivate(): void
 {
+    $plugin_roles = ['lc_columnista', 'lc_agencia'];
+
+    foreach ($plugin_roles as $role_slug) {
+        $users = get_users(['role' => $role_slug]);
+        foreach ($users as $user) {
+            // Store original role for restoration.
+            update_user_meta($user->ID, '_lc_deactivated_role', $role_slug);
+            // Demote to subscriber (keeps the account active but limited).
+            $user->set_role('subscriber');
+        }
+    }
+
     flush_rewrite_rules();
 }
 register_deactivation_hook(__FILE__, 'lean_columnas_deactivate');
+
+/**
+ * Restore users who were demoted during plugin deactivation.
+ *
+ * Checks for the _lc_deactivated_role meta and reassigns the original role.
+ */
+function lean_columnas_restore_users(): void
+{
+    $demoted = get_users([
+        'meta_key'   => '_lc_deactivated_role',
+        'meta_compare' => 'EXISTS',
+    ]);
+
+    foreach ($demoted as $user) {
+        $original_role = get_user_meta($user->ID, '_lc_deactivated_role', true);
+        if (in_array($original_role, ['lc_columnista', 'lc_agencia'], true)) {
+            $user->set_role($original_role);
+        }
+        delete_user_meta($user->ID, '_lc_deactivated_role');
+    }
+}
 
 /**
  * Initialize the plugin on plugins_loaded.
