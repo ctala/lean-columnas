@@ -81,11 +81,14 @@ class Plugin
         $user_profile = new UserProfile();
         $user_profile->register();
 
-        // Admin pages.
+        // Admin pages and dashboard widgets.
         if (is_admin()) {
             $admin_page = new Admin\AdminPage();
             add_action('admin_menu', [$admin_page, 'registerMenus']);
             add_action('admin_enqueue_scripts', [$admin_page, 'enqueueAssets']);
+
+            $dashboard_widget = new Admin\DashboardWidget();
+            add_action('wp_dashboard_setup', [$dashboard_widget, 'register']);
         }
 
         // Frontend assets — only on our CPT pages.
@@ -94,6 +97,10 @@ class Plugin
         // Editorial workflow hooks.
         $workflow = new Editorial\WorkflowManager();
         add_action('transition_post_status', [$workflow, 'handleStatusTransition'], 10, 3);
+
+        // Email notifications for editorial workflow.
+        $notifier = new Editorial\EmailNotifier();
+        $notifier->register();
     }
 
     /**
