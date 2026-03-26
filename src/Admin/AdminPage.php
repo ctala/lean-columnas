@@ -28,28 +28,47 @@ class AdminPage
      */
     public function registerMenus(): void
     {
-        // Main menu page: Editorial Queue.
+        // Main menu page: accessible to anyone with lc_write_columns (columnists + editors + admin).
         add_menu_page(
             __('Lean Columnas', 'lean-columnas'),
             __('Columnas', 'lean-columnas'),
-            'lc_review_columns',
+            'lc_write_columns',
             'lean-columnas',
-            [$this, 'renderQueuePage'],
+            [$this, 'renderMainPage'],
             'dashicons-welcome-widgets-menus',
             26
         );
 
-        // Submenu: Editorial Queue.
+        // Submenu: My Columns (for columnists).
+        add_submenu_page(
+            'lean-columnas',
+            __('Mis Columnas', 'lean-columnas'),
+            __('Mis Columnas', 'lean-columnas'),
+            'lc_write_columns',
+            'lean-columnas',
+            [$this, 'renderMainPage']
+        );
+
+        // Submenu: New Column shortcut.
+        add_submenu_page(
+            'lean-columnas',
+            __('Crear Nueva', 'lean-columnas'),
+            __('Crear Nueva', 'lean-columnas'),
+            'lc_write_columns',
+            'post-new.php?post_type=columna-opinion'
+        );
+
+        // Submenu: Editorial Queue (editors only).
         add_submenu_page(
             'lean-columnas',
             __('Cola Editorial', 'lean-columnas'),
             __('Cola Editorial', 'lean-columnas'),
             'lc_review_columns',
-            'lean-columnas',
+            'lean-columnas-queue',
             [$this, 'renderQueuePage']
         );
 
-        // Submenu: Columnists.
+        // Submenu: Columnists (editors only).
         add_submenu_page(
             'lean-columnas',
             __('Columnistas', 'lean-columnas'),
@@ -59,7 +78,7 @@ class AdminPage
             [$this, 'renderColumnistsPage']
         );
 
-        // Submenu: Agencies.
+        // Submenu: Agencies (editors only).
         add_submenu_page(
             'lean-columnas',
             __('Agencias', 'lean-columnas'),
@@ -68,6 +87,118 @@ class AdminPage
             'lean-columnas-agencias',
             [$this, 'renderAgenciesPage']
         );
+    }
+
+    /**
+     * Render the main page — redirects based on role.
+     *
+     * Columnists see their own columns; editors see the editorial queue.
+     */
+    public function renderMainPage(): void
+    {
+        if (current_user_can('lc_review_columns')) {
+            $this->renderQueuePage();
+            return;
+        }
+
+        // Columnists see their own columns list.
+        $this->renderMyColumnsPage();
+    }
+
+    /**
+     * Render the "My Columns" page for columnists.
+     */
+    private function renderMyColumnsPage(): void
+    {
+        $user_id = get_current_user_id();
+        $statuses = array_keys(PostType::CUSTOM_STATUSES);
+        $statuses[] = 'draft';
+        $statuses[] = 'publish';
+
+        $columns = get_posts([
+            'post_type'      => PostType::SLUG,
+            'post_status'    => $statuses,
+            'author'         => $user_id,
+            'posts_per_page' => 50,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+
+        $status_labels = [
+            'draft'        => __('Borrador', 'lean-columnas'),
+            'lc_submitted' => __('Enviada', 'lean-columnas'),
+            'lc_in_review' => __('En Revision', 'lean-columnas'),
+            'lc_approved'  => __('Aprobada', 'lean-columnas'),
+            'lc_returned'  => __('Devuelta', 'lean-columnas'),
+            'lc_rejected'  => __('Rechazada', 'lean-columnas'),
+            'publish'      => __('Publicada', 'lean-columnas'),
+        ];
+
+        ?>
+        <div class="wrap">
+            <h1>
+                <?php esc_html_e('Mis Columnas', 'lean-columnas'); ?>
+                <a href="<?php echo esc_url(admin_url('post-new.php?post_type=' . PostType::SLUG)); ?>" class="page-title-action">
+                    <?php esc_html_e('Crear Nueva', 'lean-columnas'); ?>
+                </a>
+            </h1>
+
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th scope="col"><?php esc_html_e('Titulo', 'lean-columnas'); ?></th>
+                        <th scope="col"><?php esc_html_e('Estado', 'lean-columnas'); ?></th>
+                        <th scope="col"><?php esc_html_e('Palabras', 'lean-columnas'); ?></th>
+                        <th scope="col"><?php esc_html_e('Fecha', 'lean-columnas'); ?></th>
+                        <th scope="col"><?php esc_html_e('Acciones', 'lean-columnas'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($columns)) : ?>
+                        <tr>
+                            <td colspan="5">
+                                <?php esc_html_e('Aun no tienes columnas. Crea tu primera columna de opinion.', 'lean-columnas'); ?>
+                            </td>
+                        </tr>
+                    <?php else : ?>
+                        <?php foreach ($columns as $column) :
+                            $word_count = str_word_count(wp_strip_all_tags($column->post_content));
+                            $status_label = $status_labels[$column->post_status] ?? $column->post_status;
+                            $badge_class = $column->post_status === 'publish' ? 'lc-status-active' :
+                                ($column->post_status === 'lc_rejected' ? 'lc-status-inactive' : 'lc-status-pending');
+                        ?>
+                            <tr>
+                                <td>
+                                    <strong>
+                                        <a href="<?php echo esc_url(get_edit_post_link($column->ID)); ?>">
+                                            <?php echo esc_html($column->post_title ?: __('(sin titulo)', 'lean-columnas')); ?>
+                                        </a>
+                                    </strong>
+                                </td>
+                                <td>
+                                    <span class="lc-status-badge <?php echo esc_attr($badge_class); ?>">
+                                        <?php echo esc_html($status_label); ?>
+                                    </span>
+                                </td>
+                                <td><?php echo esc_html((string) $word_count); ?></td>
+                                <td><?php echo esc_html(get_the_date('', $column)); ?></td>
+                                <td>
+                                    <a href="<?php echo esc_url(get_edit_post_link($column->ID)); ?>" class="button">
+                                        <?php esc_html_e('Editar', 'lean-columnas'); ?>
+                                    </a>
+                                    <?php if ($column->post_status === 'publish') : ?>
+                                        <a href="<?php echo esc_url(get_permalink($column->ID)); ?>" class="button" target="_blank">
+                                            <?php esc_html_e('Ver', 'lean-columnas'); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php
     }
 
     /**
@@ -81,6 +212,7 @@ class AdminPage
     {
         $our_pages = [
             'toplevel_page_lean-columnas',
+            'columnas_page_lean-columnas-queue',
             'columnas_page_lean-columnas-columnistas',
             'columnas_page_lean-columnas-agencias',
         ];
@@ -260,7 +392,15 @@ class AdminPage
                                 <td><?php echo esc_html($user->user_email); ?></td>
                                 <td><?php echo esc_html(ucfirst($status)); ?></td>
                                 <td><?php echo esc_html($agency_name ?: '—'); ?></td>
-                                <td><?php echo esc_html((string) $column_count); ?></td>
+                                <td>
+                                    <?php if ($column_count > 0) : ?>
+                                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=columna-opinion&author=' . $user->ID)); ?>">
+                                            <?php echo esc_html((string) $column_count); ?>
+                                        </a>
+                                    <?php else : ?>
+                                        <?php echo esc_html((string) $column_count); ?>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo esc_html($user->user_registered); ?></td>
                             </tr>
                         <?php endforeach; ?>

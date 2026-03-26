@@ -50,6 +50,23 @@ class QualityGates
      *
      * @return array{passed: bool, checks: array<string, array{passed: bool, message: string}>, failures: string[]}
      */
+    /**
+     * Gates that block submission if failed.
+     */
+    private const BLOCKING_GATES = ['word_count', 'title', 'sanitization'];
+
+    /**
+     * Gates that generate warnings but don't block submission.
+     */
+    private const WARNING_GATES = ['excerpt', 'featured_image', 'subheadings'];
+
+    /**
+     * Validate a column against all quality gates.
+     *
+     * @param \WP_Post $post The column post to validate.
+     *
+     * @return array{passed: bool, checks: array<string, array{passed: bool, message: string}>, failures: string[], warnings: string[]}
+     */
     public function validate(\WP_Post $post): array
     {
         $checks = [
@@ -62,12 +79,17 @@ class QualityGates
         ];
 
         $failures = [];
+        $warnings = [];
         $passed = true;
 
         foreach ($checks as $key => $check) {
             if (!$check['passed']) {
-                $passed = false;
-                $failures[] = $check['message'];
+                if (in_array($key, self::WARNING_GATES, true)) {
+                    $warnings[] = $check['message'];
+                } else {
+                    $passed = false;
+                    $failures[] = $check['message'];
+                }
             }
         }
 
@@ -75,6 +97,7 @@ class QualityGates
             'passed'   => $passed,
             'checks'   => $checks,
             'failures' => $failures,
+            'warnings' => $warnings,
         ];
     }
 

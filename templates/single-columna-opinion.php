@@ -81,7 +81,11 @@ while (have_posts()) :
 
         <div class="lc-author-info">
             <span class="lc-author-label"><?php esc_html_e('Columna de', 'lean-columnas'); ?></span>
-            <h2 class="lc-author-name"><?php echo esc_html($columnist['display_name']); ?></h2>
+            <h2 class="lc-author-name">
+                <a href="<?php echo esc_url(get_author_posts_url($author_id)); ?>">
+                    <?php echo esc_html($columnist['display_name']); ?>
+                </a>
+            </h2>
 
             <?php if (!empty($columnist['bio'])) : ?>
                 <p class="lc-author-bio"><?php echo esc_html($columnist['bio']); ?></p>
@@ -139,7 +143,11 @@ while (have_posts()) :
                      class="lc-author-photo" width="64" height="64" loading="lazy" />
             <?php endif; ?>
             <div class="lc-author-info">
-                <h3 class="lc-author-name"><?php echo esc_html($columnist['display_name']); ?></h3>
+                <h3 class="lc-author-name">
+                    <a href="<?php echo esc_url(get_author_posts_url($author_id)); ?>">
+                        <?php echo esc_html($columnist['display_name']); ?>
+                    </a>
+                </h3>
                 <?php if (!empty($columnist['bio'])) : ?>
                     <p class="lc-author-bio"><?php echo esc_html($columnist['bio']); ?></p>
                 <?php endif; ?>

@@ -70,6 +70,9 @@ class WorkflowManager
             return;
         }
 
+        // Quality gates are enforced pre-save via Plugin::enforceQualityGatesOnSave().
+        // This hook only handles audit logging and extensibility actions.
+
         // Store the transition in post meta for audit trail.
         $this->logTransition($post->ID, $old_status, $new_status);
 

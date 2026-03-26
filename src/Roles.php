@@ -24,9 +24,11 @@ class Roles
      * @var array<string, bool>
      */
     private const COLUMNISTA_CAPS = [
-        // WordPress core caps needed for basic functionality.
-        'read'         => true,
-        'upload_files' => true,
+        // WordPress core caps needed for wp-admin access and CPT editing.
+        'read'                 => true,
+        'upload_files'         => true,
+        'edit_posts'           => true,
+        'delete_posts'         => true,
 
         // Plugin-specific caps.
         'lc_create_column'    => true,
@@ -35,6 +37,7 @@ class Roles
         'lc_submit_column'    => true,
         'lc_view_own_stats'   => true,
         'lc_upload_images'    => true,
+        'lc_write_columns'    => true,
     ];
 
     /**

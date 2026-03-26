@@ -52,7 +52,9 @@ $card_categories = get_the_terms(get_the_ID(), 'columna-categoria');
                          alt="<?php echo esc_attr($rel_author['display_name']); ?>"
                          class="lc-card-author-photo" width="28" height="28" loading="lazy" />
                 <?php endif; ?>
-                <span class="lc-card-author-name"><?php the_author(); ?></span>
+                <a href="<?php echo esc_url(get_author_posts_url((int) get_the_author_meta('ID'))); ?>" class="lc-card-author-name">
+                    <?php the_author(); ?>
+                </a>
             </div>
             <span class="lc-card-date"><?php echo esc_html(get_the_date()); ?></span>
         </div>
