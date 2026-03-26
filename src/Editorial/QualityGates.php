@@ -223,28 +223,6 @@ class QualityGates
     }
 
     /**
-     * Check that a featured image is set.
-     *
-     * @param \WP_Post $post The column post.
-     *
-     * @return array{passed: bool, message: string}
-     */
-    public function checkFeaturedImage(\WP_Post $post): array
-    {
-        if (!has_post_thumbnail($post->ID)) {
-            return [
-                'passed'  => false,
-                'message' => __('Se recomienda agregar una imagen destacada que ilustre el tema de la columna (no tu foto de perfil, esa ya aparece automaticamente).', 'lean-columnas'),
-            ];
-        }
-
-        return [
-            'passed'  => true,
-            'message' => __('Featured image set. OK.', 'lean-columnas'),
-        ];
-    }
-
-    /**
      * Check that the content has at least the minimum required subheadings.
      *
      * Counts h2 and h3 tags in the content.

@@ -3,7 +3,7 @@
  * Plugin Name: Lean Columnas
  * Plugin URI: https://github.com/ctala/lean-columnas
  * Description: Opinion columns management with Columnist and Agency roles, editorial workflow, and quality gates.
- * Version: 0.2.6
+ * Version: 0.2.7
  * Author: Cristian Tala
  * Author URI: https://github.com/ctala
  * License: GPL-2.0-or-later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('LEAN_COLUMNAS_VERSION', '0.2.6');
+define('LEAN_COLUMNAS_VERSION', '0.2.7');
 define('LEAN_COLUMNAS_PATH', plugin_dir_path(__FILE__));
 define('LEAN_COLUMNAS_URL', plugin_dir_url(__FILE__));
 define('LEAN_COLUMNAS_BASENAME', plugin_basename(__FILE__));

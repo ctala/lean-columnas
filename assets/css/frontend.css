@@ -1,5 +1,5 @@
 /**
- * Lean Columnas Frontend — v0.2.4
+ * Lean Columnas Frontend — v0.2.7
  *
  * Structural-only CSS. Typography, colors, and base layout
  * are inherited from the active theme (GeneratePress compatible).
@@ -110,10 +110,17 @@
     margin-top: 1.5rem;
     margin-bottom: 0;
 }
+.lc-author-card--footer .lc-author-photo {
+    width: 48px;
+    height: 48px;
+}
 .lc-author-photo {
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    aspect-ratio: 1;
+    width: 64px;
+    height: 64px;
 }
 .lc-author-info {
     flex: 1;
@@ -258,6 +265,9 @@
 .lc-sidebar-card-photo {
     border-radius: 50%;
     object-fit: cover;
+    width: 24px;
+    height: 24px;
+    aspect-ratio: 1;
 }
 .lc-sidebar-card-date::before {
     content: "\00b7";
@@ -381,7 +391,7 @@
     align-items: center;
     gap: .5rem;
 }
-.lc-card-author-photo { border-radius: 50%; object-fit: cover; }
+.lc-card-author-photo { border-radius: 50%; object-fit: cover; width: 28px; height: 28px; aspect-ratio: 1; }
 .lc-card-author-name {
     font-weight: 500;
     color: inherit;
